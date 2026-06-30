@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>By Special Correspondence — Arya's Birthday</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&family=Cinzel:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Great+Vibes&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#eef4fb;
+    --bg-1:#e3edf8;
+    --bg-2:#d8e6f4;
+    --ink:#3f4f63;
+    --ink-soft:#74859b;
+    --accent:#8fb3d9;
+    --accent-deep:#4f7aa8;
+    --gold:#cdbb8a;
+    --gold-deep:#a98f5c;
+    --gold-bright:#e8c97a;
+    --gold-shine:#fff3d6;
+    --rose:#5d84ab;
+    --parchment:#fffaf2;
+    --line:rgba(79,122,168,0.25);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg-0);
+    color:var(--ink);
+    font-family:'EB Garamond', serif;
+    overflow-x:hidden;
+  }
+
+  /* ---------- texture / atmosphere ---------- */
+  .vignette{
+    position:fixed; inset:0; pointer-events:none; z-index:5;
+    background:radial-gradient(ellipse at center, transparent 45%, rgba(63,79,99,0.10) 100%);
+  }
+  .grain{
+    position:fixed; inset:0; pointer-events:none; z-index:4; opacity:0.035; mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+
+  /* ---------- seal / envelope screen ---------- */
+  #sealScreen{
+    position:fixed; inset:0; z-index:50;
+    display:flex; align-items:center; justify-content:center; flex-direction:column;
+    background:radial-gradient(ellipse at 50% 30%, #e2edf9 0%, var(--bg-0) 70%);
+    transition:opacity 0.7s ease, visibility 0.7s ease;
+    perspective:1600px;
+  }
+  #sealScreen.gone{ opacity:0; visibility:hidden; pointer-events:none; }
+  .seal-prompt{
+    font-family:'Cinzel', serif; letter-spacing:0.18em; font-size:0.75rem;
+    color:var(--gold-deep); text-transform:uppercase; margin-top:30px; opacity:0.85;
+    animation:pulse 2.4s ease-in-out infinite;
+    transition:opacity 0.4s ease;
+  }
+  #sealScreen.breaking .seal-prompt{ opacity:0; }
+  @keyframes pulse{0%,100%{opacity:0.45;}50%{opacity:0.95;}}
+
+  .envelope-stage{
+    width:300px; height:200px; position:relative;
+    transition:transform 1.1s cubic-bezier(.65,0,.35,1), opacity 0.5s ease 0.7s;
+  }
+  .envelope-stage.zoom{
+    transform:scale(7) translateY(-2%);
+    opacity:0;
+  }
+
+  .env-body{
+    position:absolute; inset:0;
+    background:linear-gradient(155deg, #fffdf9 0%, #f8f1e6 60%, #f1e7d6 100%);
+    box-shadow:0 24px 60px rgba(63,79,99,0.28), 0 4px 14px rgba(63,79,99,0.18);
+    border-radius:2px;
+    border:1px solid rgba(169,143,92,0.35);
+  }
+  .env-body::before, .env-body::after{
+    content:""; position:absolute; top:0; bottom:0; width:50%;
+    background:linear-gradient(180deg, rgba(63,79,99,0.05), transparent 30%);
+  }
+  .env-twine{ position:absolute; inset:0; width:100%; height:100%; }
+  #sealScreen.breaking .env-twine{ opacity:0; transition:opacity 0.4s ease 0.15s; }
+
+  .env-letter{
+    position:absolute; left:8%; right:8%; top:6%; height:88%;
+    background:linear-gradient(180deg, #fffefb, #fbf5e9);
+    box-shadow:0 6px 18px rgba(63,79,99,0.22);
+    border:1px solid rgba(164,95,128,0.12);
+    transform:translateY(8%); z-index:1;
+    transition:transform 1s cubic-bezier(.22,.61,.36,1), box-shadow 1s ease;
+    overflow:hidden;
+  }
+  #sealScreen.breaking .env-letter{
+    transform:translateY(-126%);
+    box-shadow:0 30px 50px rgba(63,79,99,0.3);
+  }
+
+  .env-letter-text{
+    position:absolute; inset:0; padding:13% 11% 8%; text-align:center;
+    transition:opacity 0.4s ease;
+  }
+  .envelope-stage.zoom .env-letter-text{ opacity:0; transition:opacity 0.35s ease; }
+  .elt-orn{ color:var(--gold-deep); font-size:0.62rem; margin-bottom:6%; opacity:0.7; }
+  .elt-title{
+    font-family:'Cormorant Garamond', serif; font-weight:600; font-size:0.66rem;
+    letter-spacing:0.02em; color:var(--ink); margin-bottom:5%; line-height:1.25;
+  }
+  .elt-script{
+    font-family:'Cormorant Garamond', serif; font-style:italic; font-size:0.5rem;
+    color:var(--accent-deep); margin-bottom:7%;
+  }
+  .elt-line{ height:2px; background:rgba(90,71,96,0.16); margin:0 auto 9%; border-radius:1px; }
+  .elt-line.w1{ width:92%; }
+  .elt-line.w2{ width:80%; }
+  .elt-line.w3{ width:86%; }
+  .elt-line.w4{ width:60%; }
+
+  .seal{
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    width:84px; height:84px; border-radius:50%; z-index:3;
+    background:radial-gradient(circle at 33% 28%, #aecdea, var(--accent) 55%, var(--accent-deep) 100%);
+    box-shadow:0 8px 18px rgba(63,79,99,0.4), inset 0 3px 6px rgba(255,255,255,0.35), inset 0 -6px 10px rgba(40,60,90,0.3);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    transition:transform 0.35s cubic-bezier(.34,1.56,.64,1);
+  }
+  .seal:hover{ transform:translate(-50%,-50%) scale(1.05) rotate(-2deg); }
+  .seal:active{ transform:translate(-50%,-50%) scale(0.95); }
+  .seal-emblem{ width:46px; height:46px; opacity:0; transition:opacity 0.35s ease 0.1s; }
+  #sealScreen.breaking .seal-emblem{ opacity:1; }
+  .seal-love{
+    position:absolute; left:50%; top:53%; transform:translate(-50%,-50%);
+    font-family:'Great Vibes', cursive; font-size:1.55rem; color:#fffdf6;
+    text-shadow:0 1px 2px rgba(110,80,30,0.45);
+    transition:opacity 0.35s ease, transform 0.35s ease;
+    pointer-events:none;
+  }
+  #sealScreen.breaking .seal-love{ opacity:0; transform:translate(-50%,-50%) scale(0.8); }
+  .seal-ridge{ position:absolute; inset:-3px; border-radius:50%; border:2px dotted rgba(255,253,246,0.55); opacity:0.7; }
+
+  #sealScreen.breaking .seal{ animation:crackShake 0.45s ease; }
+  @keyframes crackShake{
+    0%,100%{transform:translate(-50%,-50%) rotate(0);}
+    20%{transform:translate(-53%,-49%) rotate(-2deg);}
+    40%{transform:translate(-47%,-51%) rotate(2deg);}
+    60%{transform:translate(-52%,-50%) rotate(-1deg);}
+    80%{transform:translate(-48%,-50%) rotate(1deg);}
+  }
+  .seal-half{
+    position:absolute; top:50%; left:50%; width:84px; height:84px; margin:-42px 0 0 -42px;
+    border-radius:50%; overflow:hidden; z-index:4; pointer-events:none;
+  }
+  .seal-half .fill{
+    position:absolute; inset:0;
+    background:radial-gradient(circle at 33% 28%, #aecdea, var(--accent) 55%, var(--accent-deep) 100%);
+  }
+  .seal-half.left{ clip-path:polygon(0 0,50% 0,50% 100%,0 100%); transform-origin:0% 50%; }
+  .seal-half.right{ clip-path:polygon(50% 0,100% 0,100% 100%,50% 100%); transform-origin:100% 50%; }
+  #sealScreen.breaking .seal-half.left{ animation:openLeft 0.7s cubic-bezier(.4,0,.2,1) 0.15s forwards; }
+  #sealScreen.breaking .seal-half.right{ animation:openRight 0.7s cubic-bezier(.4,0,.2,1) 0.15s forwards; }
+  @keyframes openLeft{ to{ transform:translateX(-46px) rotate(-50deg) translateY(40px); opacity:0; } }
+  @keyframes openRight{ to{ transform:translateX(46px) rotate(50deg) translateY(40px); opacity:0; } }
+
+  #sealScreen.breaking .env-body{ box-shadow:0 24px 70px rgba(63,79,99,0.32); transition:box-shadow 1s ease; }
+
+  /* ---------- letter / content ---------- */
+  .scene{ position:relative; min-height:100vh; }
+
+  header.hero{
+    min-height:100vh; display:flex; align-items:center; justify-content:center;
+    padding:8vh 6vw; position:relative;
+    overflow:hidden;
+    background:
+      radial-gradient(ellipse 60% 50% at 50% 0%, rgba(79,122,168,0.14), transparent 60%),
+      linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 100%);
+  }
+  .petals{ position:absolute; inset:0; pointer-events:none; z-index:1; overflow:hidden; }
+  .petal{
+    position:absolute; top:-40px; opacity:0.85;
+    animation-name:petalFall, petalSway;
+    animation-timing-function:linear, ease-in-out;
+    animation-iteration-count:infinite, infinite;
+    will-change:transform;
+  }
+  .petal svg{ width:100%; height:100%; display:block; }
+  @keyframes petalFall{
+    0%{ transform:translateY(-5vh) rotate(0deg); }
+    100%{ transform:translateY(105vh) rotate(360deg); }
+  }
+  @keyframes petalSway{
+    0%, 100%{ margin-left:0px; }
+    50%{ margin-left:40px; }
+  }
+  .frame{
+    max-width:640px; width:100%; text-align:center;
+    border:1px solid var(--gold-deep);
+    box-shadow:0 0 0 1px rgba(169,143,92,0.18), 0 18px 50px rgba(63,79,99,0.12);
+    padding:60px 42px;
+    position:relative;
+    z-index:2;
+    background:rgba(255,255,255,0.55);
+    backdrop-filter:blur(2px);
+  }
+  .frame::before, .frame::after{
+    content:""; position:absolute; width:26px; height:26px;
+    border:1px solid var(--gold-deep); opacity:0.85;
+  }
+  .frame::before{ top:-1px; left:-1px; border-right:none; border-bottom:none; }
+  .frame::after{ bottom:-1px; right:-1px; border-left:none; border-top:none; }
+  .corner-tr{ position:absolute; top:-1px; right:-1px; width:26px; height:26px; border:1px solid var(--gold-deep); border-left:none; border-bottom:none; opacity:0.85;}
+  .corner-bl{ position:absolute; bottom:-1px; left:-1px; width:26px; height:26px; border:1px solid var(--gold-deep); border-right:none; border-top:none; opacity:0.85;}
+
+  .ornament{ color:var(--gold-deep); font-size:1.4rem; letter-spacing:0.6em; margin-bottom:26px; opacity:0.9; }
+  .eyebrow{
+    font-family:'Cinzel', serif; font-size:0.72rem; letter-spacing:0.32em;
+    color:var(--gold-deep); text-transform:uppercase; margin-bottom:18px;
+  }
+  h1.title{
+    font-family:'Cormorant Garamond', serif; font-weight:600;
+    font-size:clamp(2.4rem, 7vw, 4.2rem); line-height:1.05; margin:0 0 10px;
+    color:var(--ink);
+    text-shadow:0 0 30px rgba(79,122,168,0.18);
+    background:linear-gradient(100deg, var(--ink) 35%, var(--gold-deep) 50%, var(--ink) 65%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    background-size:220% auto;
+  }
+  .subtitle{
+    font-style:italic; color:var(--rose); font-size:1.15rem; margin-bottom:30px; letter-spacing:0.02em;
+  }
+  .divider{
+    width:120px; height:1px; margin:28px auto; background:linear-gradient(90deg, transparent, var(--gold-deep), transparent);
+    position:relative;
+  }
+  .divider::after{
+    content:"❦"; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    background:var(--bg-0); padding:0 12px; color:var(--gold-deep); font-size:1rem;
+  }
+
+  .letter-body{ font-size:1.18rem; line-height:1.85; text-align:left; color:var(--ink-soft); }
+  .letter-body p{ margin:0 0 1.1em; }
+  .letter-body .salute{ font-style:italic; color:var(--gold-deep); margin-bottom:1.4em; }
+  .letter-body .drop::first-letter{
+    font-family:'Cormorant Garamond', serif; font-size:3.6rem; float:left; line-height:0.78;
+    margin:8px 8px 0 0; color:var(--gold-deep); font-weight:600;
+  }
+  .sign{ text-align:right; font-family:'Great Vibes', cursive; font-size:2rem; color:var(--gold-deep); margin-top:18px; }
+
+  .scroll-cue{
+    position:absolute; bottom:34px; left:50%; transform:translateX(-50%);
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+    color:var(--gold-deep); opacity:0.7; font-family:'Cinzel'; font-size:0.62rem; letter-spacing:0.3em; text-transform:uppercase;
+    animation:bob 2.4s ease-in-out infinite;
+  }
+  @keyframes bob{0%,100%{transform:translate(-50%,0);}50%{transform:translate(-50%,8px);}}
+  .scroll-cue svg{ width:18px; height:18px; }
+
+  /* ---------- details section ---------- */
+  section.details{
+    padding:14vh 6vw; display:flex; justify-content:center;
+    background:linear-gradient(180deg, var(--bg-1), var(--bg-2) 50%, var(--bg-1));
+    position:relative;
+  }
+  section.details::before{
+    content:""; position:absolute; top:0; left:0; right:0; height:1px;
+    background:linear-gradient(90deg, transparent, var(--gold-deep), transparent);
+  }
+  .panel{ max-width:760px; width:100%; }
+  .panel h2{
+    font-family:'Cormorant Garamond'; text-align:center; font-size:clamp(1.8rem,4vw,2.6rem);
+    color:var(--ink); font-weight:600; margin-bottom:6px;
+  }
+  .panel .lede{ text-align:center; color:var(--rose); font-style:italic; margin-bottom:54px; }
+
+  .deets-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:1px; background:var(--gold-deep); border:1px solid var(--gold-deep); }
+  .deet{ background:var(--parchment); padding:34px 20px; text-align:center; }
+  .deet .ico{ color:var(--gold-deep); margin-bottom:14px; }
+  .deet .ico svg{ width:30px; height:30px; }
+  .deet .label{ font-family:'Cinzel'; font-size:0.62rem; letter-spacing:0.24em; text-transform:uppercase; color:var(--gold-deep); margin-bottom:8px; }
+  .deet .val{ font-family:'Cormorant Garamond'; font-size:1.5rem; color:var(--ink); }
+  .deet .sub{ font-size:0.9rem; color:var(--ink-soft); margin-top:2px; }
+
+  @media (max-width:640px){ .deets-grid{ grid-template-columns:1fr; } }
+
+  /* countdown */
+  .countdown{ display:flex; justify-content:center; gap:18px; margin:60px 0 10px; flex-wrap:wrap; }
+  .cd-unit{ text-align:center; min-width:74px; border:1px solid rgba(169,143,92,0.35); padding:10px 6px; background:rgba(255,250,242,0.5); }
+  .cd-num{ font-family:'Cormorant Garamond'; font-size:2.6rem; color:var(--gold-deep); font-weight:600; line-height:1; }
+  .cd-label{ font-family:'Cinzel'; font-size:0.6rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--ink-soft); margin-top:6px; }
+  .cd-sep{ font-size:2rem; color:var(--gold-deep); opacity:0.5; align-self:flex-start; margin-top:16px; }
+
+  /* ---------- vote section ---------- */
+  section.vote{
+    padding:14vh 6vw 16vh; display:flex; justify-content:center;
+    background:var(--bg-0);
+    position:relative;
+  }
+  section.vote::before{
+    content:""; position:absolute; top:0; left:0; right:0; height:1px;
+    background:linear-gradient(90deg, transparent, var(--gold-deep), transparent);
+  }
+  .vote-panel{ max-width:780px; width:100%; }
+  .vote-panel h2{ font-family:'Cormorant Garamond'; text-align:center; font-size:clamp(1.8rem,4vw,2.6rem); margin-bottom:6px; color:var(--ink);}
+  .vote-panel .lede{ text-align:center; color:var(--rose); font-style:italic; margin-bottom:50px; }
+
+  .options{ display:grid; grid-template-columns:1fr 1fr; gap:28px; }
+  @media (max-width:680px){ .options{ grid-template-columns:1fr; } }
+
+  .opt{
+    border:1px solid var(--line); padding:30px 26px; cursor:pointer;
+    position:relative; overflow:hidden; transition:border-color 0.3s, transform 0.3s, background 0.3s;
+    background:rgba(255,255,255,0.55);
+  }
+  .opt:hover{ border-color:var(--gold-deep); transform:translateY(-3px); }
+  .opt.selected{ border-color:var(--gold-deep); background:rgba(205,187,138,0.16); }
+  .opt .tag{ font-family:'Cinzel'; font-size:0.58rem; letter-spacing:0.24em; text-transform:uppercase; color:var(--gold-deep); margin-bottom:10px; display:block; }
+  .opt h3{ font-family:'Cormorant Garamond'; font-size:1.7rem; margin:0 0 10px; color:var(--ink); font-weight:600; }
+  .opt p{ font-size:1rem; color:var(--ink-soft); line-height:1.6; margin:0 0 20px; min-height:78px; }
+  .opt .barwrap{ height:7px; background:rgba(90,71,96,0.1); position:relative; margin-bottom:10px; }
+  .opt .bar{ height:100%; background:linear-gradient(90deg, var(--gold-bright), var(--gold-deep)); width:0%; transition:width 1s cubic-bezier(.34,1.2,.64,1); }
+  .opt .stats{ display:flex; justify-content:space-between; font-family:'Cinzel'; font-size:0.65rem; letter-spacing:0.08em; color:var(--gold-deep); }
+  .opt .check{
+    position:absolute; top:18px; right:18px; width:22px; height:22px; border-radius:50%;
+    border:1px solid var(--gold-deep); display:flex; align-items:center; justify-content:center; opacity:0.4;
+  }
+  .opt.selected .check{ opacity:1; background:var(--gold-deep); border-color:var(--gold-deep); }
+  .opt.selected .check svg{ stroke:#fff; }
+  .opt .check svg{ width:12px; height:12px; stroke:var(--gold-deep); }
+
+  .vote-note{ text-align:center; margin-top:34px; font-family:'Cinzel'; font-size:0.64rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--ink-soft); opacity:0.8; }
+  .vote-thanks{ text-align:center; margin-top:20px; font-style:italic; color:var(--gold-deep); font-size:1.1rem; min-height:1.4em; }
+
+  .vote-undo-wrap{ text-align:center; margin-top:14px; }
+  .vote-undo{
+    background:none; border:1px solid var(--gold-deep); color:var(--gold-deep);
+    font-family:'Cinzel'; font-size:0.62rem; letter-spacing:0.18em; text-transform:uppercase;
+    padding:9px 20px; cursor:pointer; transition:border-color 0.25s, background 0.25s;
+  }
+  .vote-undo:hover{ border-color:var(--gold-deep); background:rgba(205,187,138,0.18); }
+
+  footer{
+    text-align:center; padding:60px 6vw 80px; color:var(--gold-deep); font-family:'Cinzel'; font-size:0.62rem; letter-spacing:0.3em; text-transform:uppercase; opacity:0.8; background:var(--bg-0);
+  }
+
+  .reveal{ opacity:0; transform:translateY(24px); transition:opacity 0.9s ease, transform 0.9s ease; }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+
+  ::selection{ background:var(--gold); color:var(--ink); }
+</style>
+</head>
+<body>
+
+<div class="vignette"></div>
+<div class="grain"></div>
+
+<!-- SEAL GATE -->
+<div id="sealScreen">
+  <div class="envelope-stage" id="envelopeStage">
+    <div class="env-letter">
+      <div class="env-letter-text">
+        <div class="elt-orn">❦</div>
+        <div class="elt-title">An Evening Among Friends</div>
+        <div class="elt-script">Dearest Gentle Reader,</div>
+        <div class="elt-line w1"></div>
+        <div class="elt-line w2"></div>
+        <div class="elt-line w3"></div>
+        <div class="elt-line w4"></div>
+      </div>
+    </div>
+    <div class="env-body"></div>
+    <svg class="env-twine" viewBox="0 0 300 200" preserveAspectRatio="none">
+      <line x1="0" y1="0" x2="300" y2="200" stroke="#d9b083" stroke-width="2.4"/>
+      <line x1="300" y1="0" x2="0" y2="200" stroke="#d9b083" stroke-width="2.4"/>
+      <line x1="0" y1="100" x2="300" y2="100" stroke="#d9b083" stroke-width="2.4"/>
+      <line x1="150" y1="0" x2="150" y2="200" stroke="#d9b083" stroke-width="2.4"/>
+      <path d="M150 100 C128 86, 122 108, 150 100 C122 92, 128 114, 150 100" fill="none" stroke="#d9b083" stroke-width="2.4"/>
+      <path d="M150 100 C172 86, 178 108, 150 100 C178 92, 172 114, 150 100" fill="none" stroke="#d9b083" stroke-width="2.4"/>
+    </svg>
+    <div class="seal-half left"><div class="fill"></div></div>
+    <div class="seal-half right"><div class="fill"></div></div>
+    <div class="seal" id="sealBtn" role="button" aria-label="Break the seal to read the invitation" tabindex="0">
+      <div class="seal-ridge"></div>
+      <div class="seal-love">love</div>
+      <svg class="seal-emblem" viewBox="0 0 64 64" fill="none" stroke="rgba(255,255,255,0.95)" stroke-width="1.4">
+        <circle cx="32" cy="32" r="26" stroke-dasharray="2 3" opacity="0.6"/>
+        <path d="M32 14c6 5 11 6 16 5-1 11-3 19-16 29C19 38 17 30 16 19c5 1 10 0 16-5z" stroke-linejoin="round"/>
+        <text x="32" y="38" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="18" fill="rgba(255,255,255,0.95)" stroke="none">A</text>
+      </svg>
+    </div>
+  </div>
+  <div class="seal-prompt">Break the seal to read on</div>
+</div>
+
+<div class="scene">
+
+  <header class="hero">
+    <div class="petals" id="petals"></div>
+    <div class="frame reveal" id="heroFrame">
+      <span class="corner-tr"></span><span class="corner-bl"></span>
+      <div class="ornament">🌸 🪶 ✦ 🦢 ✦ 🪶 🌸</div>
+      <div class="eyebrow">By Special Correspondence</div>
+      <h1 class="title">An Evening Among Friends</h1>
+      <div class="divider"></div>
+      <div class="letter-body">
+        <p class="salute">Dearest Gentle Reader,</p>
+        <p class="drop">This author has learned, from a source of impeccable discretion, that Miss Arya is to celebrate the anniversary of her birth this coming Friday.
+        <p>You, esteemed friend, are hereby summoned to attend. Expect fine company, finer conversation, and revelry that shall be the talk of every drawing room come morning. There remains but one matter still undecided — the venue for the evening's festivities — and your vote, dear reader, shall settle it.</p>
+      </div>
+      <div class="sign">Arya</div>
+    </div>
+  </header>
+
+  <section class="details">
+    <div class="panel">
+      <h2 class="reveal">The Particulars</h2>
+      <p class="lede reveal">Mark it well, lest you arrive fashionably too late</p>
+
+      <div class="deets-grid reveal">
+        <div class="deet">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="3" y="5" width="18" height="16" rx="1"/><path d="M3 9h18M8 3v4M16 3v4"/></svg></div>
+          <div class="label">Date</div>
+          <div class="val">3rd of July</div>
+          <div class="sub">Friday</div>
+        </div>
+        <div class="deet">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></div>
+          <div class="label">Time</div>
+          <div class="val">7:00 PM</div>
+          <div class="sub">onwards</div>
+        </div>
+        <div class="deet">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M12 3l3 6 6 1-4.5 4.5L17.5 21 12 17.5 6.5 21l1-6.5L3 10l6-1z"/></svg></div>
+          <div class="label">Dress code</div>
+          <div class="val">Cool, Comfy &amp; Sexy</div>
+          <div class="sub">(Anything you'd like tbh)</div>
+        </div>
+      </div>
+
+      <div class="countdown reveal" id="countdown">
+        <div class="cd-unit"><div class="cd-num" id="cd-d">00</div><div class="cd-label">Days</div></div>
+        <div class="cd-sep">:</div>
+        <div class="cd-unit"><div class="cd-num" id="cd-h">00</div><div class="cd-label">Hours</div></div>
+        <div class="cd-sep">:</div>
+        <div class="cd-unit"><div class="cd-num" id="cd-m">00</div><div class="cd-label">Mins</div></div>
+        <div class="cd-sep">:</div>
+        <div class="cd-unit"><div class="cd-num" id="cd-s">00</div><div class="cd-label">Secs</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="vote">
+    <div class="vote-panel">
+      <h2 class="reveal">A Matter For The Ton To Decide</h2>
+      <p class="lede reveal">Where shall the evening unfold? This author awaits your verdict.</p>
+
+      <div class="options reveal" id="options">
+        <div class="opt" data-key="tressa">
+          <span class="tag">Option I</span>
+          <div class="check"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <h3>Tressa</h3>
+          <p>A vision of a venue, exquisitely dressed — fit for the portraits that will circulate by morning. And from what I've heard, the food is rather excellent too.</p>
+          <div class="barwrap"><div class="bar" id="bar-tressa"></div></div>
+          <div class="stats"><span id="pct-tressa">0%</span><span id="cnt-tressa">0 votes</span></div>
+        </div>
+        <div class="opt" data-key="asia">
+          <span class="tag">Option II</span>
+          <div class="check"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <h3>Asia Kitchen</h3>
+          <p>A table of considerable renown for its pan-Asian fare — for those who dine as eagerly as they gossip.</p>
+          <div class="barwrap"><div class="bar" id="bar-asia"></div></div>
+          <div class="stats"><span id="pct-asia">0%</span><span id="cnt-asia">0 votes</span></div>
+        </div>
+      </div>
+
+      <div class="vote-thanks" id="voteThanks"></div>
+      <div class="vote-undo-wrap" id="voteUndoWrap" style="display:none;">
+        <button type="button" class="vote-undo" id="voteUndoBtn">Undo my vote</button>
+      </div>
+      <div class="vote-note">Cast your vote · one per esteemed guest, if you please 🌸</div>
+    </div>
+  </section>
+
+  <footer>With great anticipation · Arya's Birthday · 3rd July</footer>
+</div>
+
+<script>
+(function(){
+  var petalsWrap = document.getElementById('petals');
+  if(petalsWrap){
+    var petalSVG = '<svg viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg">' +
+      '<path d="M16 0C24 8 30 16 30 24C30 33 24 40 16 40C8 40 2 33 2 24C2 16 8 8 16 0Z" fill="currentColor"/>' +
+      '</svg>';
+    var colors = ['#8fb3d9', '#4f7aa8', '#aecdea', '#6f9bc7'];
+    var count = 22;
+    for(var i=0; i<count; i++){
+      var p = document.createElement('div');
+      p.className = 'petal';
+      var size = 10 + Math.random()*14;
+      var left = Math.random()*100;
+      var fallDur = 9 + Math.random()*9;
+      var swayDur = 3 + Math.random()*3;
+      var delay = Math.random()*14;
+      var color = colors[Math.floor(Math.random()*colors.length)];
+      p.style.left = left + 'vw';
+      p.style.width = size + 'px';
+      p.style.height = (size*1.25) + 'px';
+      p.style.color = color;
+      p.style.opacity = (0.5 + Math.random()*0.4).toFixed(2);
+      p.style.animationDuration = fallDur + 's, ' + swayDur + 's';
+      p.style.animationDelay = (-delay) + 's, ' + (-delay) + 's';
+      p.innerHTML = petalSVG;
+      petalsWrap.appendChild(p);
+    }
+  }
+})();
+
+(function(){
+  var sealScreen = document.getElementById('sealScreen');
+  var sealBtn = document.getElementById('sealBtn');
+  var envelopeStage = document.getElementById('envelopeStage');
+
+  function openLetter(){
+    if(sealScreen.classList.contains('breaking')) return;
+    sealScreen.classList.add('breaking');
+
+    setTimeout(function(){
+      envelopeStage.classList.add('zoom');
+    }, 900);
+
+    setTimeout(function(){
+      document.getElementById('heroFrame').classList.add('in');
+    }, 1750);
+
+    setTimeout(function(){
+      sealScreen.classList.add('gone');
+    }, 2250);
+  }
+  sealBtn.addEventListener('click', openLetter);
+  sealBtn.addEventListener('keypress', function(e){ if(e.key==='Enter' || e.key===' ') openLetter(); });
+
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ if(e.isIntersecting) e.target.classList.add('in'); });
+  }, {threshold:0.15});
+  document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+
+  function pad(n){ return n<10 ? '0'+n : ''+n; }
+  function tick(){
+    var target = new Date('2026-07-03T19:00:00');
+    var now = new Date();
+    var diff = target - now;
+    if(diff < 0) diff = 0;
+    var d = Math.floor(diff/86400000);
+    var h = Math.floor((diff%86400000)/3600000);
+    var m = Math.floor((diff%3600000)/60000);
+    var s = Math.floor((diff%60000)/1000);
+    document.getElementById('cd-d').textContent = pad(d);
+    document.getElementById('cd-h').textContent = pad(h);
+    document.getElementById('cd-m').textContent = pad(m);
+    document.getElementById('cd-s').textContent = pad(s);
+  }
+  tick(); setInterval(tick, 1000);
+
+  var STORE_KEY = 'arya_invite_votes_v1';
+  var VOTED_KEY = 'arya_invite_voted_v1';
+  function loadVotes(){
+    try{
+      var raw = localStorage.getItem(STORE_KEY);
+      if(raw) return JSON.parse(raw);
+    }catch(e){}
+    return { tressa: 0, asia: 0 };
+  }
+  function saveVotes(v){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(v)); }catch(e){} }
+
+  var votes = loadVotes();
+  var votedFor = null;
+  try{ votedFor = localStorage.getItem(VOTED_KEY); }catch(e){}
+
+  function render(){
+    var total = (votes.tressa||0) + (votes.asia||0);
+    ['tressa','asia'].forEach(function(key){
+      var count = votes[key]||0;
+      var pct = total ? Math.round((count/total)*100) : 0;
+      document.getElementById('bar-'+key).style.width = pct+'%';
+      document.getElementById('pct-'+key).textContent = pct+'%';
+      document.getElementById('cnt-'+key).textContent = count + (count===1?' vote':' votes');
+      var optEl = document.querySelector('.opt[data-key="'+key+'"]');
+      optEl.classList.toggle('selected', votedFor===key);
+    });
+    document.getElementById('voteUndoWrap').style.display = votedFor ? 'block' : 'none';
+  }
+  render();
+
+  document.querySelectorAll('.opt').forEach(function(opt){
+    opt.addEventListener('click', function(){
+      var key = opt.getAttribute('data-key');
+      if(votedFor === key) return;
+      if(votedFor){ votes[votedFor] = Math.max(0,(votes[votedFor]||0)-1); }
+      votes[key] = (votes[key]||0) + 1;
+      votedFor = key;
+      try{ localStorage.setItem(VOTED_KEY, key); }catch(e){}
+      saveVotes(votes);
+      render();
+      var thanks = document.getElementById('voteThanks');
+      var name = key==='tressa' ? 'Tressa' : 'Asia Kitchen';
+      thanks.textContent = 'Your verdict for ' + name + ' has been duly recorded, dear reader.';
+    });
+  });
+
+  document.getElementById('voteUndoBtn').addEventListener('click', function(){
+    if(!votedFor) return;
+    votes[votedFor] = Math.max(0,(votes[votedFor]||0)-1);
+    saveVotes(votes);
+    votedFor = null;
+    try{ localStorage.removeItem(VOTED_KEY); }catch(e){}
+    render();
+    document.getElementById('voteThanks').textContent = 'Your vote has been withdrawn, should you wish to reconsider.';
+  });
+})();
+</script>
+
+</body>
+</html>
